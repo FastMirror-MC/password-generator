@@ -83,6 +83,9 @@ const uppercaseEl = document.getElementById("uppercase");
 const lowercaseEl = document.getElementById("lowercase");
 const numberEl = document.getElementById("number");
 const symbolEl = document.getElementById("symbol");
+const excludeEl = document.getElementById("exclude");
+
+const excludeCharsEl = document.getElementById("exclude-chars");
 
 // Button to generate the password
 const generateBtn = document.getElementById("generate");
@@ -152,13 +155,19 @@ const generate = () => {
   const hasUpper = uppercaseEl.checked;
   const hasNumber = numberEl.checked;
   const hasSymbol = symbolEl.checked;
+
+  const enabledExclude = excludeEl.checked;
+  const excludeChars = excludeCharsEl.value;
+
   generatedPassword = true;
   resultEl.innerText = generatePassword(
     length,
     hasLower,
     hasUpper,
     hasNumber,
-    hasSymbol
+    hasSymbol,
+    enabledExclude,
+    excludeChars
   );
   copyInfo.style.transform = "translateY(0%)";
   copyInfo.style.opacity = "0.75";
@@ -169,29 +178,57 @@ const generate = () => {
 generateBtn.addEventListener("click", generate);
 
 // Function responsible to generate password and then returning it.
-function generatePassword(length, lower, upper, number, symbol) {
+function generatePassword(
+  length,
+  lower,
+  upper,
+  number,
+  symbol,
+  exclude,
+  excludeChars
+) {
   let generatedPassword = "";
   const typesCount = lower + upper + number + symbol;
   const typesArr = [{ lower }, { upper }, { number }, { symbol }].filter(
     (item) => Object.values(item)[0]
   );
+  const excludeArr = [...new Set(excludeChars.split(""))];
   if (typesCount === 0) {
     return "";
   }
-  for (let i = 0; i < length; i++) {
-    typesArr.forEach((type) => {
-      const funcName = Object.keys(type)[0];
-      generatedPassword += randomFunc[funcName]();
-    });
+  currentTypeIndex = 0;
+  const getNextType = () => {
+    if (currentTypeIndex >= typesArr.length) {
+      currentTypeIndex = 0;
+    }
+    return typesArr[currentTypeIndex++];
+  };
+  let i = 0;
+  while (generatedPassword.length < length) {
+    i++;
+    const currentType = getNextType();
+
+    const funcName = Object.keys(currentType)[0];
+    const char = randomFunc[funcName]();
+    console.log(i, currentType, char);
+    if (exclude && excludeArr.includes(char)) {
+      continue;
+    }
+    generatedPassword += char;
   }
-  return generatedPassword.slice(0, length);
+  console.log(i);
+  return generatedPassword;
 }
 
 // function that handles the checkboxes state, so at least one needs to be selected. The last checkbox will be disabled.
 function disableOnlyCheckbox() {
-  let totalChecked = [uppercaseEl, lowercaseEl, numberEl, symbolEl].filter(
-    (el) => el.checked
-  );
+  let totalChecked = [
+    uppercaseEl,
+    lowercaseEl,
+    numberEl,
+    symbolEl,
+    excludeEl,
+  ].filter((el) => el.checked);
   totalChecked.forEach((el) => {
     if (totalChecked.length == 1) {
       el.disabled = true;
@@ -201,7 +238,7 @@ function disableOnlyCheckbox() {
   });
 }
 
-[uppercaseEl, lowercaseEl, numberEl, symbolEl].forEach((el) => {
+[uppercaseEl, lowercaseEl, numberEl, symbolEl, excludeEl].forEach((el) => {
   el.addEventListener("click", () => {
     disableOnlyCheckbox();
     generate();
