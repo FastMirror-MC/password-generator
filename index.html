@@ -19,9 +19,9 @@
       <div class="result__viewbox" id="result">CLICK GENERATE</div>
       <button id="copy-btn" style="--x: 0; --y: 0"><i class="far fa-copy"></i></button>
     </div>
-    <div class="length range__slider" data-min="4" data-max="100">
+    <div class="length range__slider" data-min="4" data-max="99">
       <div class="length__title field-title" data-length='0'>密码长度:</div>
-      <input id="slider" type="range" min="4" max="100" value="16" />
+      <input id="slider" type="range" min="4" max="99" value="16" />
     </div>
 
     <div class="settings">
@@ -42,7 +42,14 @@
         <input type="checkbox" id="symbol" />
         <label for="symbol">包含特殊符号</label>
       </div>
-      
+      <div class="setting block-setting">
+        <div class="up">
+          <input type="checkbox" id="exclude" />
+          <label for="exclude">排除字符</label>
+        </div>
+        <input type="text" id="exclude-chars" placeholder="排除字符" value="0oOlIi" />
+      </div>
+
       <button class="btn generate" id="generate">生成密码</button>
 
     </div>
